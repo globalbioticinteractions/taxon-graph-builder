@@ -59,10 +59,10 @@ update: $(NAMES)
 
 $(NOMER_JAR):
 	wget -q "https://github.com/globalbioticinteractions/nomer/releases/download/$(NOMER_VERSION)/nomer.jar" -O $(NOMER_JAR)
-	cat config/corrected.properties <(java -jar nomer properties | grep preston) > $(NOMER_PROPERTIES_CORRECTED)
-	cat config/id2name.properties <(java -jar nomer properties | grep preston) > $(NOMER_PROPERTIES_ID2NAME)
-	cat config/name2id.properties <(java -jar nomer properties | grep preston) > $(NOMER_PROPERTIES_NAME2ID)
-	cat config/ncbi-rematch.properties <(java -jar nomer properties | grep preston) > $(NOMER_PROPERTIES_NCBI_REMATCH)
+	cat config/corrected.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_CORRECTED)
+	cat config/id2name.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_ID2NAME)
+	cat config/name2id.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_NAME2ID)
+	cat config/ncbi-rematch.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_NCBI_REMATCH)
 
 $(BUILD_DIR)/term_link.tsv.gz:
 	wget -q "$(TAXON_GRAPH_URL_PREFIX)/taxonMap.tsv.gz" -O $(BUILD_DIR)/term_link.tsv.gz
