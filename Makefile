@@ -11,10 +11,10 @@ NOMER_VERSION:=0.4.11
 NOMER_JAR:=$(BUILD_DIR)/nomer.jar
 NOMER:=java -jar $(NOMER_JAR)
 
-NOMER_PROPERTIES_CORRECTED:=config/corrected.properties
-NOMER_PROPERTIES_NCBI_REMATCH:=config/ncbi-rematch.properties
-NOMER_PROPERTIES_ID2NAME:=config/id2name.properties
-NOMER_PROPERTIES_NAME2ID:=config/name2id.properties
+NOMER_PROPERTIES_CORRECTED:=target/corrected.properties
+NOMER_PROPERTIES_NCBI_REMATCH:=target/ncbi-rematch.properties
+NOMER_PROPERTIES_ID2NAME:=target/id2name.properties
+NOMER_PROPERTIES_NAME2ID:=target/name2id.properties
 
 NAMES:=$(BUILD_DIR)/names.tsv.gz
 LINKS:=$(BUILD_DIR)/links.tsv.gz
@@ -59,6 +59,10 @@ update: $(NAMES)
 
 $(NOMER_JAR):
 	wget -q "https://github.com/globalbioticinteractions/nomer/releases/download/$(NOMER_VERSION)/nomer.jar" -O $(NOMER_JAR)
+	cat config/corrected.properties <(java -jar nomer properties | grep preston) > $(NOMER_PROPERTIES_CORRECTED)
+	cat config/id2name.properties <(java -jar nomer properties | grep preston) > $(NOMER_PROPERTIES_ID2NAME)
+	cat config/name2id.properties <(java -jar nomer properties | grep preston) > $(NOMER_PROPERTIES_NAME2ID)
+	cat config/ncbi-rematch.properties <(java -jar nomer properties | grep preston) > $(NOMER_PROPERTIES_NCBI_REMATCH)
 
 $(BUILD_DIR)/term_link.tsv.gz:
 	wget -q "$(TAXON_GRAPH_URL_PREFIX)/taxonMap.tsv.gz" -O $(BUILD_DIR)/term_link.tsv.gz
