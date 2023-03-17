@@ -129,7 +129,7 @@ $(TAXON_CACHE).update:
 	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep "SIMILAR_TO" | sort | uniq | gzip > $(BUILD_DIR)/term_fuzzy.tsv.gz
 
 	# validate newly resolved terms and their links
-	cat $(BUILD_DIR)/term_match.tsv.gz | gunzip | $(NOMER) validate-term | grep "all validations pass" | gzip > $(BUILD_DIR)/term_match_validated.tsv.gz
+	cat $(BUILD_DIR)/term_match.tsv.gz | gunzip | $(NOMER) validate-terms | grep "all validations pass" | gzip > $(BUILD_DIR)/term_match_validated.tsv.gz
 	cat $(BUILD_DIR)/term_link_match.tsv.gz | gunzip | $(NOMER) validate-term-link | grep "all validations pass" | gzip > $(BUILD_DIR)/term_link_match_validated.tsv.gz
 
 	cat $(BUILD_DIR)/term_link_match_validated.tsv.gz | gunzip | grep -v "FAIL" | cut -f3- | gzip > $(TAXON_MAP).update
