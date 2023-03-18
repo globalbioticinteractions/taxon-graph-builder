@@ -75,7 +75,7 @@ $(BUILD_DIR)/namesUnresolved.tsv.gz:
 
 resolve: update $(NOMER_JAR) $(BUILD_DIR)/term_link.tsv.gz $(BUILD_DIR)/namesUnresolved.tsv.gz $(TAXON_CACHE).update $(TAXON_MAP).update
 
-w$(TAXON_CACHE).update:
+$(TAXON_CACHE).update:
 	cat $(NAMES) | gunzip | cut -f1,2 | sort | uniq | gzip > $(BUILD_DIR)/names_new.tsv.gz
 
 	cat $(BUILD_DIR)/names_new.tsv.gz | gunzip | $(NOMER) append globi-correct | cut -f1,2,4,5 | sort | uniq | gzip > $(BUILD_DIR)/names_new_corrected.tsv.gz
