@@ -108,7 +108,7 @@ $(TAXON_CACHE).update:
 	cat $(BUILD_DIR)/term_unresolved_once_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_CORRECTED) mdd | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
 	cat $(BUILD_DIR)/term_unresolved_once_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_CORRECTED) batnames | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
 
-	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep -v "NONE" | grep -P "(SAME_AS|SYNONYM_OF|HAS_ACCEPTED_NAME_OF|COMMON_NAME_OF)" | cut -f6-14 | gzip > $(BUILD_DIR)/term_match.tsv.gz
+	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep -v "NONE" | grep -P "(SAME_AS|SYNONYM_OF|HAS_ACCEPTED_NAME_OF|COMMON_NAME_OF)" | cut -f6,7,9-13,15 | sed 's/$/\t/g' | gzip > $(BUILD_DIR)/term_match.tsv.gz
 	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep -v "NONE" | grep -P "(SAME_AS|SYNONYM_OF|HAS_ACCEPTED_NAME|COMMON_NAME_OF)" | cut -f1,2,6,7 | gzip > $(BUILD_DIR)/term_link_match.tsv.gz
 	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep "NONE" | cut -f1,2 | sort | uniq > $(BUILD_DIR)/term_unresolved_once.tsv
 	cat $(BUILD_DIR)/term_link_match.tsv.gz | gunzip | cut -f1,2 | sort | uniq > $(BUILD_DIR)/term_resolved_once.tsv
@@ -116,8 +116,8 @@ $(TAXON_CACHE).update:
 
 	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep "SIMILAR_TO" | sort | uniq | gzip > $(BUILD_DIR)/term_fuzzy.tsv.gz
 
-	# validate newly resolved terms and their links
-	cat $(BUILD_DIR)/term_match.tsv.gz | gunzip | cut -f4,5,7- | $(NOMER) validate-terms | grep "all validations pass" | gzip > $(BUILD_DIR)/term_match_validated.tsv.gz
+	# validate resolved terms and their links
+	cat $(BUILD_DIR)/term_match.tsv.gz | gunzip | $(NOMER) validate-terms | grep "all validations pass" | gzip > $(BUILD_DIR)/term_match_validated.tsv.gz
 	cat $(BUILD_DIR)/term_link_match.tsv.gz | gunzip | $(NOMER) validate-term-link | grep "all validations pass" | gzip > $(BUILD_DIR)/term_link_match_validated.tsv.gz
 
 	cat $(BUILD_DIR)/term_link_match_validated.tsv.gz | gunzip | grep -v "FAIL" | cut -f3- | gzip > $(TAXON_MAP).update
