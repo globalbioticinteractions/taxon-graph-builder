@@ -113,31 +113,23 @@ $(TAXON_CACHE).update:
 	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep "NONE" | cut -f1,2 | sort | uniq > $(BUILD_DIR)/term_unresolved_once.tsv
 	cat $(BUILD_DIR)/term_link_match.tsv.gz | gunzip | cut -f1,2 | sort | uniq > $(BUILD_DIR)/term_resolved_once.tsv
 
-
-	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep "SIMILAR_TO" | sort | uniq | gzip > $(BUILD_DIR)/term_fuzzy.tsv.gz
-
-	# validate resolved terms and their links
-	cat $(BUILD_DIR)/term_match.tsv.gz | gunzip | $(NOMER) validate-terms | grep "all validations pass" | gzip > $(BUILD_DIR)/term_match_validated.tsv.gz
-	cat $(BUILD_DIR)/term_link_match.tsv.gz | gunzip | $(NOMER) validate-term-link | grep "all validations pass" | gzip > $(BUILD_DIR)/term_link_match_validated.tsv.gz
-
-	cat $(BUILD_DIR)/term_link_match_validated.tsv.gz | gunzip | grep -v "FAIL" | cut -f3- | gzip > $(TAXON_MAP).update
-	cat $(BUILD_DIR)/term_match_validated.tsv.gz | gunzip | grep -v "FAIL" | cut -f3- | gzip > $(TAXON_CACHE).update
-
+	cat $(BUILD_DIR)/term_resolved.tsv.gz > $(TAXON_MAP).update
+	cat $(BUILD_DIR)/term_link_match.tsv.gz > $(TAXON_CACHE).update
 
 $(TAXON_CACHE): $(BUILD_DIR)/term.tsv.gz
 	# swap working files with final result
-	cat config/taxonCache.header.tsv.gz > $(BUILD_DIR)/term_header.tsv.gz	
+	cat config/taxonCache.header.tsv.gz > $(BUILD_DIR)/term_header.tsv.gz
 	cat config/taxonMap.header.tsv.gz > $(BUILD_DIR)/term_link_header.tsv.gz
 	
 	cat $(TAXON_CACHE).update > $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz
 	cat $(TAXON_MAP).update > $(BUILD_DIR)/taxonMapNoHeader.tsv.gz
 
 	# normalize the ranks using nomer
-	cat $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz | gunzip | tail -n +2 | cut -f4 | awk -F '\t' '{ print $$1 "\t" $$1 }' | $(NOMER) replace --properties=$(NOMER_PROPERTIES_NAME2ID) globi-taxon-rank | cut -f1 | $(NOMER) replace --properties=$(NOMER_PROPERTIES_ID2NAME) globi-taxon-rank > $(BUILD_DIR)/norm_ranks.tsv
+	cat $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz | gunzip | cut -f4 | awk -F '\t' '{ print $$1 "\t" $$1 }' | $(NOMER) replace --properties=$(NOMER_PROPERTIES_NAME2ID) globi-taxon-rank | cut -f1 | $(NOMER) replace --properties=$(NOMER_PROPERTIES_ID2NAME) globi-taxon-rank > $(BUILD_DIR)/norm_ranks.tsv
 	cat $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz | gunzip | tail -n +2 | cut -f8 | awk -F '\t' '{ print $$1 "\t" $$1 }' | $(NOMER) replace --properties=$(NOMER_PROPERTIES_NAME2ID) globi-taxon-rank | cut -f1 | $(NOMER) replace --properties=$(NOMER_PROPERTIES_ID2NAME) globi-taxon-rank > $(BUILD_DIR)/norm_path_ranks.tsv
 
 	
-	paste <(cat $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz | gunzip | tail -n +2 | cut -f1-2) <(cat $(BUILD_DIR)/norm_ranks.tsv) <(cat $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz | gunzip | tail -n +2 | cut -f5-7) <(cat $(BUILD_DIR)/norm_path_ranks.tsv) <(cat $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz | gunzip | tail -n +2 | cut -f9-) | sort | uniq | gzip > $(BUILD_DIR)/taxonCacheNorm.tsv.gz
+	paste <(cat $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz | gunzip | cut -f1-2) <(cat $(BUILD_DIR)/norm_ranks.tsv) <(cat $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz | gunzip | tail -n +2 | cut -f5-7) <(cat $(BUILD_DIR)/norm_path_ranks.tsv) <(cat $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz | gunzip | tail -n +2 | cut -f9-) | sort | uniq | gzip > $(BUILD_DIR)/taxonCacheNorm.tsv.gz
 
 	# prepend header	
 	cat $(BUILD_DIR)/term_link_header.tsv.gz $(BUILD_DIR)/taxonMapNoHeader.tsv.gz > $(TAXON_MAP)
@@ -161,6 +153,5 @@ $(TAXON_GRAPH_ARCHIVE): $(TAXON_CACHE)
 	diff --changed-group-format='%<' --unchanged-group-format='' <(cat dist/names.tsv.gz | gunzip | cut -f1,2 | sort | uniq) <(cat dist/taxonMap.tsv.gz | gunzip | tail -n+2 | cut -f1,2 | sort | uniq) | gzip > dist/namesUnresolved.tsv.gz
 
 	cat dist/namesUnresolved.tsv.gz | gunzip | sha256sum | cut -d " " -f1 > dist/namesUnresolved.tsv.sha256
-		
 	
 package: $(TAXON_GRAPH_ARCHIVE)
