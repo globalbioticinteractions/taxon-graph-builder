@@ -279,4 +279,12 @@ org.globalbioticinteractions.taxon v0.4.0, 2023-03-21
 
 1. update elton, nomer, and globi taxon graph versions
 2. attempt to align all names, including those aligned previously. Replaced incremental name alignment. Incremental name alignment was a optimization needed because of web api performance. Now, no web apis are used, so the optimization is no longer needed.
-take names from https://globalbioticinteractions.org/data verbatim-interactions.tsv.gz instead of parsing verbatim names from their sources
+3. take names from https://globalbioticinteractions.org/data verbatim-interactions.tsv.gz instead of parsing verbatim names from their sources
+
+
+org.globalbioticinteractions.taxon v0.4.1, 2023-03-22
+
+1. update taxon graph build script to fit into existing taxonMap/taxonCache schema
+2. fix various bugs
+3. remove internal validation until a more up-to-date validation method is available
+ 
