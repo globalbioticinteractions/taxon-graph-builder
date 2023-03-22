@@ -113,8 +113,8 @@ $(TAXON_CACHE).update:
 	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep "NONE" | cut -f1,2 | sort | uniq > $(BUILD_DIR)/term_unresolved_once.tsv
 	cat $(BUILD_DIR)/term_link_match.tsv.gz | gunzip | cut -f1,2 | sort | uniq > $(BUILD_DIR)/term_resolved_once.tsv
 
-	cat $(BUILD_DIR)/term_resolved.tsv.gz > $(TAXON_MAP).update
-	cat $(BUILD_DIR)/term_link_match.tsv.gz > $(TAXON_CACHE).update
+	cat $(BUILD_DIR)/term_match.tsv.gz > $(TAXON_CACHE).update
+	cat $(BUILD_DIR)/term_link_match.tsv.gz > $(TAXON_MAP).update
 
 $(TAXON_CACHE): $(BUILD_DIR)/term.tsv.gz
 	# swap working files with final result
