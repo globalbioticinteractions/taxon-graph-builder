@@ -126,8 +126,8 @@ $(TAXON_CACHE).update:
 
 $(TAXON_CACHE): $(BUILD_DIR)/term.tsv.gz
 	# swap working files with final result
-	cat $(BUILD_DIR)/term.tsv.gz | gunzip | head -n1 | gzip > $(BUILD_DIR)/term_header.tsv.gz	
-	cat $(BUILD_DIR)/term_link.tsv.gz | gunzip | head -n1 | gzip > $(BUILD_DIR)/term_link_header.tsv.gz
+	cat config/taxonCache.header.tsv.gz > $(BUILD_DIR)/term_header.tsv.gz	
+	cat config/taxonMap.header.tsv.gz > $(BUILD_DIR)/term_link_header.tsv.gz
 	
 	cat $(TAXON_CACHE).update > $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz
 	cat $(TAXON_MAP).update > $(BUILD_DIR)/taxonMapNoHeader.tsv.gz
