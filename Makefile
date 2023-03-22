@@ -18,8 +18,6 @@ NOMER_PROPERTIES_NAME2ID:=target/name2id.properties
 NAMES:=$(BUILD_DIR)/names.tsv.gz
 LINKS:=$(BUILD_DIR)/links.tsv.gz
 
-TAXON_GRAPH_URL_PREFIX:=https://zenodo.org/record/6394935/files
-
 TAXON_CACHE_NAME:=$(BUILD_DIR)/taxonCache.tsv
 TAXON_CACHE:=$(TAXON_CACHE_NAME).gz
 TAXON_MAP_NAME:=$(BUILD_DIR)/taxonMap.tsv
@@ -62,16 +60,7 @@ $(NOMER_JAR):
 	cat config/id2name.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_ID2NAME)
 	cat config/name2id.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_NAME2ID)
 
-$(BUILD_DIR)/term_link.tsv.gz:
-	wget -q "$(TAXON_GRAPH_URL_PREFIX)/taxonMap.tsv.gz" -O $(BUILD_DIR)/term_link.tsv.gz
-
-$(BUILD_DIR)/term.tsv.gz:
-	wget -q "$(TAXON_GRAPH_URL_PREFIX)/taxonCache.tsv.gz" -O $(BUILD_DIR)/term.tsv.gz
-
-$(BUILD_DIR)/namesUnresolved.tsv.gz:
-	wget -q "$(TAXON_GRAPH_URL_PREFIX)/namesUnresolved.tsv.gz" -O $(BUILD_DIR)/namesUnresolved.tsv.gz
-
-resolve: update $(NOMER_JAR) $(BUILD_DIR)/term_link.tsv.gz $(BUILD_DIR)/namesUnresolved.tsv.gz $(TAXON_CACHE).update $(TAXON_MAP).update
+resolve: update $(NOMER_JAR) $(TAXON_CACHE).update $(TAXON_MAP).update
 
 $(TAXON_CACHE).update:
 	cat $(NAMES) | gunzip | cut -f1,2 | sort | uniq | gzip > $(BUILD_DIR)/names_new.tsv.gz
@@ -116,7 +105,7 @@ $(TAXON_CACHE).update:
 	cat $(BUILD_DIR)/term_match.tsv.gz > $(TAXON_CACHE).update
 	cat $(BUILD_DIR)/term_link_match.tsv.gz > $(TAXON_MAP).update
 
-$(TAXON_CACHE): $(BUILD_DIR)/term.tsv.gz
+$(TAXON_CACHE):
 	# swap working files with final result
 	cat config/taxonCache.header.tsv.gz > $(BUILD_DIR)/term_header.tsv.gz
 	cat config/taxonMap.header.tsv.gz > $(BUILD_DIR)/term_link_header.tsv.gz
