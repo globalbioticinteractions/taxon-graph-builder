@@ -282,7 +282,7 @@ org.globalbioticinteractions.taxon v0.4.0, 2023-03-21
 3. take names from https://globalbioticinteractions.org/data verbatim-interactions.tsv.gz instead of parsing verbatim names from their sources
 
 
-org.globalbioticinteractions.taxon v0.4.1, 2023-03-22
+org.globalbioticinteractions.taxon v0.4.1, 2023-03-23
 
 1. update taxon graph build script to fit into existing taxonMap/taxonCache schema
 2. fix various bugs
