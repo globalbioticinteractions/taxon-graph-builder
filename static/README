@@ -288,3 +288,7 @@ org.globalbioticinteractions.taxon v0.4.1, 2023-03-23
 2. fix various bugs
 3. remove internal validation until a more up-to-date validation method is available
  
+org.globalbioticinteractions.taxon v0.4.2, 2022-10-24
+
+1. update taxonCache and taxonMap using automated scripts available at globalbioticinteractions. (2023). globalbioticinteractions/taxon-graph-builder: 0.0.7 (0.0.7). Zenodo. https://doi.org/10.5281/zenodo.10037579
+
