@@ -2,11 +2,6 @@ SHELL=/bin/bash
 BUILD_DIR=target
 STAMP=$(BUILD_DIR)/.$(BUILD_DIR)stamp
 
-ELTON_VERSION:=0.12.9
-ELTON_JAR:=$(BUILD_DIR)/elton.jar
-ELTON:=java -jar $(BUILD_DIR)/elton.jar
-ELTON_DATASET_DIR:=${BUILD_DIR}/datasets
-
 NOMER_VERSION:=0.5.5
 NOMER_JAR:=$(BUILD_DIR)/nomer.jar
 NOMER:=java -jar $(NOMER_JAR)
@@ -38,15 +33,10 @@ clean:
 $(STAMP):
 	mkdir -p $(BUILD_DIR) && touch $@
 
-$(ELTON_JAR): $(STAMP)
-	wget -q "https://github.com/globalbioticinteractions/elton/releases/download/$(ELTON_VERSION)/elton.jar" -O $(ELTON_JAR)
-
 $(VERBATIM_INTERACTIONS): $(STAMP)
 	wget -q "https://depot.globalbioticinteractions.org/snapshot/target/data/tsv/verbatim-interactions.tsv.gz" -O $(VERBATIM_INTERACTIONS)
 
 $(NAMES): $(VERBATIM_INTERACTIONS)
-	#$(ELTON) update --cache-dir=$(ELTON_DATASET_DIR)
-	#$(ELTON) names --cache-dir=$(ELTON_DATASET_DIR) | tail -n+2 | cut -f1-7 | gzip > $(BUILD_DIR)/globi-names.tsv.gz
 	cat $(VERBATIM_INTERACTIONS) | gunzip | mlr --tsvlite cut -f sourceTaxonId,sourceTaxonName | tail -n+2 | sort | uniq | gzip > $(BUILD_DIR)/globi-names.tsv.gz
 	cat $(VERBATIM_INTERACTIONS) | gunzip | mlr --tsvlite cut -f targetTaxonId,targetTaxonName | tail -n+2 | sort | uniq | gzip >> $(BUILD_DIR)/globi-names.tsv.gz
 	cat $(BUILD_DIR)/globi-names.tsv.gz | gunzip | sort | uniq | gzip > $(BUILD_DIR)/globi-names-sorted.tsv.gz
