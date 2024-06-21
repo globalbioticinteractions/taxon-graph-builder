@@ -28,7 +28,7 @@ TAXON_GRAPH_ARCHIVE:=$(DIST_DIR)/taxon-graph.zip
 all: update resolve normalize package
 
 clean:
-	rm -rf $(BUILD_DIR)/* $(DIST_DIR)/* .nomer/*
+	rm -rf $(BUILD_DIR)/* $(DIST_DIR)/* ${PWD}/.cache/nomer .nomer/*
 
 $(STAMP):
 	mkdir -p $(BUILD_DIR) && touch $@
