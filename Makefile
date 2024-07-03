@@ -2,7 +2,7 @@ SHELL=/bin/bash
 BUILD_DIR=target
 STAMP=$(BUILD_DIR)/.$(BUILD_DIR)stamp
 
-NOMER_VERSION:=0.5.11
+NOMER_VERSION:=0.5.12
 NOMER_JAR:=$(BUILD_DIR)/nomer.jar
 NOMER:=java -jar $(NOMER_JAR)
 
