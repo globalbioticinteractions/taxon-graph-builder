@@ -108,6 +108,9 @@ $(TAXON_CACHE):
 	
 	cat $(TAXON_CACHE).update > $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz
 	cat $(TAXON_MAP).update > $(BUILD_DIR)/taxonMapNoHeader.tsv.gz
+	
+	# pre-index globi-taxon-rank index if needed (workaround for https://github.com/globalbioticinteractions/nomer/issues/183)
+	echo -e "\tsoort" | ${NOMER} append globi-taxon-rank
 
 	# normalize the ranks using nomer
 	cat $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz | gunzip | cut -f3 | awk -F '\t' '{ print $$1 "\t" $$1 }' | $(NOMER) replace --properties=$(NOMER_PROPERTIES_NAME2ID) globi-taxon-rank | cut -f1 | $(NOMER) replace --properties=$(NOMER_PROPERTIES_ID2NAME) globi-taxon-rank > $(BUILD_DIR)/norm_ranks.tsv
