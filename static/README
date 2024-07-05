@@ -310,5 +310,3 @@ apply patch 20240617 to work towards addressing suspicious Candidatus name mappi
 org.globalbioticinteractions.taxon v0.5.0, 2024-07-05
 
 1. update taxonCache and taxonMap using automated scripts available via Taxon Graph Builder v0.1.0 https://github.com/globalbioticinteractions/taxon-graph-builder/releases/tag/0.1.0 and/or https://doi.org/10.5281/zenodo.1286023 . 
-
-apply patch 20240617 to work towards addressing suspicious Candidatus name mapping reported in https://github.com/globalbioticinteractions/globalbioticinteractions/issues/968
