@@ -23,8 +23,8 @@ Files
       Header and 10 following lines from taxonCache.tsv
 
   taxonCacheFirst10.tsv.sha256
-      sha256 hash of taxonCacheFirst10.tsv
-       
+      sha256 hash of taxonCacheFirst10.tsv
+       
   taxonMap.tsv.gz 
       Links between taxon name and ids across various taxon providers. 
 
@@ -35,22 +35,22 @@ Files
       Header and 10 following lines from taxonMap.tsv
  
   taxonMapFirst10.tsv.sha256
-      sha256 hash of taxonMapFirst10.tsv
+      sha256 hash of taxonMapFirst10.tsv
 
   prefixes.tsv
       Term prefixes and their associated uri schemes. 
 
-  names.tsv.gz
-      Corpus of names used to resolve and link. Generated using https://github.com/globalbioticinteractions/elton .
+  names.tsv.gz
+      Corpus of names used to resolve and link. Generated using https://github.com/globalbioticinteractions/elton .
 
-  names.tsv.sha256
-      sha256 hash of names.tsv
+  names.tsv.sha256
+      sha256 hash of names.tsv
 
-  namesUnresolved.tsv.gz
-      Names that are not (yet) linked to name sources using https://github.com/globalbioticinteractions/nomer .
+  namesUnresolved.tsv.gz
+      Names that are not (yet) linked to name sources using https://github.com/globalbioticinteractions/nomer .
 
-  namesUnresolved.tsv.sha256
-      sha256 hash of namesUnresolved.tsv 
+  namesUnresolved.tsv.sha256
+      sha256 hash of namesUnresolved.tsv 
 
 Column Descriptions
 
@@ -73,15 +73,15 @@ Column Descriptions
     3 | resolvedTaxonId
     4 | resolvedTaxonName
 
-  names.tsv.gz
+  names.tsv.gz
 
-    1 | providedTaxonId
-    2 | providedTaxonName
+    1 | providedTaxonId
+    2 | providedTaxonName
 
-   namesUnresolved.tsv.gz
+   namesUnresolved.tsv.gz
 
-    1 | providedTaxonId
-    2 | providedTaxonName
+    1 | providedTaxonId
+    2 | providedTaxonName
 
 References
 
@@ -151,7 +151,7 @@ org.globalbioticinteractions.taxon v0.3.7, 2018-10-18
 
 1. update taxonCache and taxonMap using automated scripts available at https://doi.org/10.5281/zenodo.1286023
 2. remove dubious mapping to Vertebrata (WORMS:370321 , http://www.marinespecies.org/aphia.php?p=taxdetails&id=370321). Also see https://github.com/globalbioticinteractions/globalbioticinteractions/issues/361 .
-3. remove dubious mapping to NCBITaxon:1585532 (Beta vulgaris/Cercospora beticola mixed EST library). Also see https://github.com/globalbioticinteractions/globalbioticinteractions/issues/346 and https://github.com/Planteome/samara/issues/50 
+3. remove dubious mapping to NCBITaxon:1585532 (Beta vulgaris/Cercospora beticola mixed EST library). Also see https://github.com/globalbioticinteractions/globalbioticinteractions/issues/346 and https://github.com/Planteome/samara/issues/50 
 
 org.globalbioticinteractions.taxon v0.3.8, 2018-11-15
 
@@ -161,17 +161,17 @@ org.globalbioticinteractions.taxon v0.3.9, 2018-11-23
 
 1. label deprecated EOL ids by applying patches in http://doi.org/10.5281/zenodo.1495266 to taxonMap.tsv.gz and taxonCache.tsv.gz . Related to https://github.com/globalbioticinteractions/globalbioticinteractions/issues/383 .
 2. remove all Encyclopedia of Life thumbnail urls from taxonCache. Related to https://github.com/globalbioticinteractions/globalbioticinteractions/issues/381 .
-3. remove Encyclopedia of Life external urls associated with deprecated ids from taxonCache. 
+3. remove Encyclopedia of Life external urls associated with deprecated ids from taxonCache. 
 
 
 org.globalbioticinteractions.taxon v0.3.10, 2018-11-26
 
-1. Remove suspicious name mappings related to Humpback scorpionfish (Scorpaenopsis gibbosa) by applying patch published in Poelen, Jorrit H. (2018). Global Biotic Interactions: Taxon Graph Patches (Version 0.2. [Data set]. Zenodo. http://doi.org/10.5281/zenodo.1560662 
+1. Remove suspicious name mappings related to Humpback scorpionfish (Scorpaenopsis gibbosa) by applying patch published in Poelen, Jorrit H. (2018). Global Biotic Interactions: Taxon Graph Patches (Version 0.2. [Data set]. Zenodo. http://doi.org/10.5281/zenodo.1560662 
 
 org.globalbioticinteractions.taxon v0.3.11, 2018-12-21
 
 1. update taxonCache and taxonMap using automated scripts available at https://doi.org/10.5281/zenodo.1286023
-2. remove suspicious name mappings using: ```zcat taxonMap.tsv.gz | grep -v -i -P "\tnone\t" | grep -v -P "(GBIF|IRMNG):.*\tBrachyura$" | grep -v -P "Gamarus" |  grep -v -P "^EOL:1047365\ttrachurus trachurus" | grep -v -P "Loros\t.*Psittacidae" | grep -v -P "(GBIF|IRMNG).*Lucifer$" | grep -v -P "GBIF.*Diadema$" | gzip > taxonMapUpdated.tsv.gz```
+2. remove suspicious name mappings using: ```zcat taxonMap.tsv.gz | grep -v -i -P "\tnone\t" | grep -v -P "(GBIF|IRMNG):.*\tBrachyura$" | grep -v -P "Gamarus" |  grep -v -P "^EOL:1047365\ttrachurus trachurus" | grep -v -P "Loros\t.*Psittacidae" | grep -v -P "(GBIF|IRMNG).*Lucifer$" | grep -v -P "GBIF.*Diadema$" | gzip > taxonMapUpdated.tsv.gz```
 
 org.globalbioticinteractions.taxon v0.3.12, 2019-06-05
 
@@ -279,16 +279,36 @@ org.globalbioticinteractions.taxon v0.4.0, 2023-03-21
 
 1. update elton, nomer, and globi taxon graph versions
 2. attempt to align all names, including those aligned previously. Replaced incremental name alignment. Incremental name alignment was a optimization needed because of web api performance. Now, no web apis are used, so the optimization is no longer needed.
-3. take names from https://globalbioticinteractions.org/data verbatim-interactions.tsv.gz instead of parsing verbatim names from their sources
-
+take names from https://globalbioticinteractions.org/data verbatim-interactions.tsv.gz instead of parsing verbatim names from their sources
 
 org.globalbioticinteractions.taxon v0.4.1, 2023-03-23
 
-1. update taxon graph build script to fit into existing taxonMap/taxonCache schema
-2. fix various bugs
-3. remove internal validation until a more up-to-date validation method is available
- 
-org.globalbioticinteractions.taxon v0.4.2, 2022-10-24
+update taxon graph build script to fit into existing taxonMap/taxonCache schema
+fix various bugs
+remove internal validation until a more up-to-date validation method is available
 
-1. update taxonCache and taxonMap using automated scripts available at globalbioticinteractions. (2023). globalbioticinteractions/taxon-graph-builder: 0.0.7 (0.0.7). Zenodo. https://doi.org/10.5281/zenodo.10037579
+org.globalbioticinteractions.taxon v0.4.2, 2022-10-14
 
+update taxonCache and taxonMap using automated scripts available at globalbioticinteractions. (2023). globalbioticinteractions/taxon-graph-builder: 0.0.7 (0.0.7). Zenodo. https://doi.org/10.5281/zenodo.10037579
+
+org.globalbioticinteractions.taxon v0.4.3, 2022-10-26
+
+apply patch 20231026-01 to address https://github.com/globalbioticinteractions/globalwebdb/issues/1 and https://discuss.eol.org/t/questionable-link-in-trophic-web-for-white-tailed-jackrabbit/2296
+
+org.globalbioticinteractions.taxon v0.4.4, 2022-10-26
+
+apply patch 20231026-02 to continue to work towards addressing https://github.com/globalbioticinteractions/globalwebdb/issues/1 and https://discuss.eol.org/t/questionable-link-in-trophic-web-for-white-tailed-jackrabbit/2296
+
+org.globalbioticinteractions.taxon v0.4.5, 2022-10-26
+
+apply patch 20231026-03 to continue to work towards addressing https://github.com/globalbioticinteractions/globalwebdb/issues/1 and https://discuss.eol.org/t/questionable-link-in-trophic-web-for-white-tailed-jackrabbit/2296
+
+org.globalbioticinteractions.taxon v0.4.6, 2024-06-17
+
+apply patch 20240617 to work towards addressing suspicious Candidatus name mapping reported in https://github.com/globalbioticinteractions/globalbioticinteractions/issues/968
+
+org.globalbioticinteractions.taxon v0.5.0, 2024-07-05
+
+1. update taxonCache and taxonMap using automated scripts available via Taxon Graph Builder v0.1.0 https://github.com/globalbioticinteractions/taxon-graph-builder/releases/tag/0.1.0 and/or https://doi.org/10.5281/zenodo.1286023 . 
+
+apply patch 20240617 to work towards addressing suspicious Candidatus name mapping reported in https://github.com/globalbioticinteractions/globalbioticinteractions/issues/968
