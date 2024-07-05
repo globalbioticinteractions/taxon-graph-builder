@@ -310,3 +310,22 @@ apply patch 20240617 to work towards addressing suspicious Candidatus name mappi
 org.globalbioticinteractions.taxon v0.5.0, 2024-07-05
 
 1. update taxonCache and taxonMap using automated scripts available via Taxon Graph Builder v0.1.0 https://github.com/globalbioticinteractions/taxon-graph-builder/releases/tag/0.1.0 and/or https://doi.org/10.5281/zenodo.1286023 . 
+
+apply patch 20240617 to work towards addressing suspicious Candidatus name mapping reported in https://github.com/globalbioticinteractions/globalbioticinteractions/issues/968
+
+Provenance
+
+The information below includes the signatures of files included in this publication in a machine readable format.
+
+<https://zenodo.org/records/12668767/files/names.tsv.gz> <http://purl.org/pav/hasVersion> <hash://sha256/4264a3d001e3fa20414cc204550f64042495169facb26994e081e1f1fe8b6606> <urn:uuid:9e534d55-e62e-4290-b824-2d8968dd3921> .
+<https://zenodo.org/records/12668767/files/names.tsv.sha256> <http://purl.org/pav/hasVersion> <hash://sha256/7fb6649df8c4e10578469b77f3f5a4244fbd39c6ba510b70d511469038e0d991> <urn:uuid:d945235e-29bf-45ec-a5bc-b23dafdc2af3> .
+<https://zenodo.org/records/12668767/files/namesUnresolved.tsv.gz> <http://purl.org/pav/hasVersion> <hash://sha256/801a8a9f36c81ee8d0c914c18e221274393de6a76aeac1bb09a534a000611593> <urn:uuid:11bb8dd0-54e1-4352-b763-f0fa5c384a67> .
+<https://zenodo.org/records/12668767/files/namesUnresolved.tsv.sha256> <http://purl.org/pav/hasVersion> <hash://sha256/2f14dfda3d6b63f5b35507aadf0907d4bf8690365514b44f57721b5acc355035> <urn:uuid:f1f8091b-41ca-4c66-8843-a08c45f359ca> .
+<https://zenodo.org/records/12668767/files/prefixes.tsv> <http://purl.org/pav/hasVersion> <hash://sha256/b5e61132e0cec9b7a801dae98db79eb821d70c9c9f5d729953170090050ec61f> <urn:uuid:385d9ca6-9faf-447b-9fd6-d6c1783f7b82> .
+<https://zenodo.org/records/12668767/files/README> <http://purl.org/pav/hasVersion> <hash://sha256/690be52b0588393b934327221d83eee97cba182cd7c58612bd5a83d55b140fe0> <urn:uuid:780d6757-2557-492b-ad3f-d96d64fe49d4> .
+<https://zenodo.org/records/12668767/files/taxonCacheFirst10.tsv> <http://purl.org/pav/hasVersion> <hash://sha256/797244fc68eed5e8eeb16be62bfe16727e2cc235de630aee88df3e4744f07659> <urn:uuid:3ffedd59-0483-4765-bfb7-4ff739034038> .
+<https://zenodo.org/records/12668767/files/taxonCache.tsv.gz> <http://purl.org/pav/hasVersion> <hash://sha256/a54d031167030abc4339182b367ce14a1c6de14406f3be4646c7e87f605976f7> <urn:uuid:733ec562-d48e-41d5-a3bd-3099c7fc16f2> .
+<https://zenodo.org/records/12668767/files/taxonCache.tsv.sha256> <http://purl.org/pav/hasVersion> <hash://sha256/c7f3c0272aea4f55bb7525fc23a534ba82d9a687d363948cbe7ac010d38161a0> <urn:uuid:4c131257-4602-41e0-955a-fe32ec6b6443> .
+<https://zenodo.org/records/12668767/files/taxonMapFirst10.tsv> <http://purl.org/pav/hasVersion> <hash://sha256/51e7b3bb6e68529e9958a5a7f2c2dc706e6cd02ab6a395b6ce875215db5d9612> <urn:uuid:51f42d38-6968-4961-8540-3028f1e457ff> .
+<https://zenodo.org/records/12668767/files/taxonMap.tsv.gz> <http://purl.org/pav/hasVersion> <hash://sha256/e130e54c4f5bf3e675fafe31ea5cb294e9b512ebf5ca41e78b76906ad76aef51> <urn:uuid:b73b7537-0906-4a6a-8371-fa0186dfa919> .
+<https://zenodo.org/records/12668767/files/taxonMap.tsv.sha256> <http://purl.org/pav/hasVersion> <hash://sha256/864c6867daca4ce7a0034883cc5b9996d55b31e936a7c1cb4f01499b6a5ee865> <urn:uuid:31201432-f475-4031-aa3d-aabcd7a02db2> .
