@@ -133,8 +133,10 @@ $(TAXON_CACHE):
 	echo -e "\tsoort" | ${NOMER} append globi-taxon-rank
 
 	# normalize the ranks using nomer
-	cat $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz | gunzip | cut -f3 | awk -F '\t' '{ print $$1 "\t" $$1 }' | $(NOMER) replace --properties=$(NOMER_PROPERTIES_NAME2ID) globi-taxon-rank | cut -f1 | $(NOMER) replace --properties=$(NOMER_PROPERTIES_ID2NAME) globi-taxon-rank > $(BUILD_DIR)/norm_ranks.tsv
-	cat $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz | gunzip | cut -f7 | awk -F '\t' '{ print $$1 "\t" $$1 }' | $(NOMER) replace --properties=$(NOMER_PROPERTIES_NAME2ID) globi-taxon-rank | cut -f1 | $(NOMER) replace --properties=$(NOMER_PROPERTIES_ID2NAME) globi-taxon-rank > $(BUILD_DIR)/norm_path_ranks.tsv
+	cat $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz | gunzip | cut -f3 | awk -F '\t' '{ print $$1 "\t" $$1 }' | $(NOMER) replace --properties=$(NOMER_PROPERTIES_NAME2ID) globi-taxon-rank | cut -f1 > ${BUILD_DIR}/norm_ranks_tmp.tsv
+	cat ${BUILD_DIR}/norm_ranks_tmp.tsv | $(NOMER) replace --properties=$(NOMER_PROPERTIES_ID2NAME) globi-taxon-rank > $(BUILD_DIR)/norm_ranks.tsv
+	cat $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz | gunzip | cut -f7 | awk -F '\t' '{ print $$1 "\t" $$1 }' | $(NOMER) replace --properties=$(NOMER_PROPERTIES_NAME2ID) globi-taxon-rank | cut -f1 > ${BUILD_DIR)/norm_path_ranks_tmp.tsv
+	cat ${BUILD_DIR)/norm_path_ranks_tmp.tsv | $(NOMER) replace --properties=$(NOMER_PROPERTIES_ID2NAME) globi-taxon-rank > $(BUILD_DIR)/norm_path_ranks.tsv
 
 	
 	paste <(cat $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz | gunzip | cut -f1-2) <(cat $(BUILD_DIR)/norm_ranks.tsv) <(cat $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz | gunzip | cut -f4-6) <(cat $(BUILD_DIR)/norm_path_ranks.tsv) <(cat $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz | gunzip | cut -f8-) | sort | uniq | gzip > $(BUILD_DIR)/taxonCacheNorm.tsv.gz
