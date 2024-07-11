@@ -315,3 +315,8 @@ org.globalbioticinteractions.taxon v0.5.1, 2024-07-08
 
 1. update taxonCache and taxonMap using automated scripts available via Taxon Graph Builder v0.1.1 https://github.com/globalbioticinteractions/taxon-graph-builder/releases/tag/0.1.1 and/or https://doi.org/10.5281/zenodo.12687693 . 
 
+org.globalbioticinteractions.taxon v0.5.2, 2024-07-11
+
+1. update taxonCache and taxonMap using automated scripts available via Taxon Graph Builder v0.1.2 https://github.com/globalbioticinteractions/taxon-graph-builder/releases/tag/0.1.2 and/or https://doi.org/10.5281/zenodo.12687693 . 
+
+
