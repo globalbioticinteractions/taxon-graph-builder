@@ -37,8 +37,8 @@ $(VERBATIM_INTERACTIONS): $(STAMP)
 	wget -q "https://depot.globalbioticinteractions.org/snapshot/target/data/tsv/verbatim-interactions.tsv.gz" -O $(VERBATIM_INTERACTIONS)
 
 $(NAMES): $(VERBATIM_INTERACTIONS)
-	cat $(VERBATIM_INTERACTIONS) | gunzip | mlr --tsvlite cut -f sourceTaxonId,sourceTaxonName | tail -n+2 | sort | uniq | gzip > $(BUILD_DIR)/globi-names.tsv.gz
-	cat $(VERBATIM_INTERACTIONS) | gunzip | mlr --tsvlite cut -f targetTaxonId,targetTaxonName | tail -n+2 | sort | uniq | gzip >> $(BUILD_DIR)/globi-names.tsv.gz
+	cat $(VERBATIM_INTERACTIONS) | gunzip | mlr --tsvlite cut -f sourceTaxonId,sourceTaxonPath | tail -n+2 | sort | uniq | gzip > $(BUILD_DIR)/globi-names.tsv.gz
+	cat $(VERBATIM_INTERACTIONS) | gunzip | mlr --tsvlite cut -f targetTaxonId,targetTaxonPath | tail -n+2 | sort | uniq | gzip >> $(BUILD_DIR)/globi-names.tsv.gz
 	cat $(BUILD_DIR)/globi-names.tsv.gz | gunzip | sort | uniq | gzip > $(BUILD_DIR)/globi-names-sorted.tsv.gz
 	mv $(BUILD_DIR)/globi-names-sorted.tsv.gz $(NAMES)
 
