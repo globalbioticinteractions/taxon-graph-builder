@@ -6,6 +6,7 @@ NOMER_VERSION:=0.6.4
 NOMER_JAR:=$(BUILD_DIR)/nomer.jar
 NOMER:=java -jar $(NOMER_JAR)
 
+NOMER_PROPERTIES_NAME:=target/name.properties
 NOMER_PROPERTIES_CORRECTED:=target/corrected.properties
 NOMER_PROPERTIES_ID2NAME:=target/id2name.properties
 NOMER_PROPERTIES_NAME2ID:=target/name2id.properties
@@ -37,8 +38,8 @@ $(VERBATIM_INTERACTIONS): $(STAMP)
 	wget -q "https://depot.globalbioticinteractions.org/snapshot/target/data/tsv/verbatim-interactions.tsv.gz" -O $(VERBATIM_INTERACTIONS)
 
 $(NAMES): $(VERBATIM_INTERACTIONS)
-	cat $(VERBATIM_INTERACTIONS) | gunzip | mlr --tsvlite cut -f sourceTaxonId,sourceTaxonName | tail -n+2 | sort | uniq | gzip > $(BUILD_DIR)/globi-names.tsv.gz
-	cat $(VERBATIM_INTERACTIONS) | gunzip | mlr --tsvlite cut -f targetTaxonId,targetTaxonName | tail -n+2 | sort | uniq | gzip >> $(BUILD_DIR)/globi-names.tsv.gz
+	cat $(VERBATIM_INTERACTIONS) | gunzip | mlr --tsvlite cut -f sourceTaxonId,sourceTaxonName,sourceTaxonPathNames | tail -n+2 | sort | uniq | gzip > $(BUILD_DIR)/globi-names.tsv.gz
+	cat $(VERBATIM_INTERACTIONS) | gunzip | mlr --tsvlite cut -f targetTaxonId,targetTaxonName,targetTaxonPathNames | tail -n+2 | sort | uniq | gzip >> $(BUILD_DIR)/globi-names.tsv.gz
 	cat $(BUILD_DIR)/globi-names.tsv.gz | gunzip | sort | uniq | gzip > $(BUILD_DIR)/globi-names-sorted.tsv.gz
 	mv $(BUILD_DIR)/globi-names-sorted.tsv.gz $(NAMES)
 
@@ -46,6 +47,7 @@ update: $(NAMES)
 
 $(NOMER_JAR):
 	wget -q "https://github.com/globalbioticinteractions/nomer/releases/download/$(NOMER_VERSION)/nomer.jar" -O $(NOMER_JAR)
+	cat config/name.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_NAME)
 	cat config/corrected.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_CORRECTED)
 	cat config/id2name.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_ID2NAME)
 	cat config/name2id.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_NAME2ID)
@@ -53,30 +55,30 @@ $(NOMER_JAR):
 resolve: update $(NOMER_JAR) $(TAXON_CACHE).update $(TAXON_MAP).update
 
 $(TAXON_CACHE).update:
-	cat $(NAMES) | gunzip | cut -f1,2 | sort | uniq | gzip > $(BUILD_DIR)/names_new.tsv.gz
+	cat $(NAMES) | gunzip | cut -f1,2,3 | sort | uniq | gzip > $(BUILD_DIR)/names_new.tsv.gz
 
-	cat $(BUILD_DIR)/names_new.tsv.gz | gunzip | $(NOMER) append globi-correct | cut -f1,2,4,5 | sort | uniq | gzip > $(BUILD_DIR)/names_new_corrected.tsv.gz
+	cat $(BUILD_DIR)/names_new.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) globi-correct | cut -f1,2,3,5,6,7 | sort | uniq | gzip > $(BUILD_DIR)/names_new_corrected.tsv.gz
 
-	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append globi | grep -P "\t(FBC:FB|FBC:SLB)" | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
-	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append itis | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
-	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append gbif | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
-	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append indexfungorum | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
-	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append discoverlife | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
-	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append ncbi | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
-	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append col | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
-	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append pbdb | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
-	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append tpt | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
-	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append mdd | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
-	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append batnames | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
-	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append worms | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
-	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append wikidata | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
-	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append eol | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
-	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append wfo | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
+	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) globi | grep -P "\t(FBC:FB|FBC:SLB)" | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
+	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) itis | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
+	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) gbif | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
+	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) indexfungorum | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
+	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) discoverlife | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
+	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) ncbi | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
+	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) col | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
+	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) pbdb | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
+	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) tpt | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
+	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) mdd | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
+	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) batnames | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
+	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) worms | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
+	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) wikidata | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
+	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) eol | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
+	cat $(BUILD_DIR)/names_new_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) wfo | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
 
 	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep -v "NONE" | gzip > $(BUILD_DIR)/term_resolved_once.tsv.gz
-	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep "NONE" | cut -f1,2 | sort | uniq > $(BUILD_DIR)/term_unresolved_once.tsv
+	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep "NONE" | cut -f1,2,3 | sort | uniq > $(BUILD_DIR)/term_unresolved_once.tsv
 	mv $(BUILD_DIR)/term_resolved_once.tsv.gz $(BUILD_DIR)/term_resolved.tsv.gz
-	cat $(BUILD_DIR)/term_unresolved_once.tsv | $(NOMER) append gbif-parse | cut -f1,2,4,5 | sort | uniq | gzip > $(BUILD_DIR)/term_unresolved_once_corrected.tsv.gz
+	cat $(BUILD_DIR)/term_unresolved_once.tsv | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) gbif-parse | cut -f1,2,3,5,6,7 | sort | uniq | gzip > $(BUILD_DIR)/term_unresolved_once_corrected.tsv.gz
 
 	cat $(BUILD_DIR)/term_unresolved_once_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_CORRECTED) itis | grep -P "\t(FBC:FB|FBC:SLB)" | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
 	cat $(BUILD_DIR)/term_unresolved_once_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_CORRECTED) itis | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
@@ -95,9 +97,9 @@ $(TAXON_CACHE).update:
 	cat $(BUILD_DIR)/term_unresolved_once_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_CORRECTED) eol | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
 
 	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep -v "NONE" | gzip > $(BUILD_DIR)/term_resolved_twice.tsv.gz
-	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep "NONE" | cut -f1,2 | sort | uniq > $(BUILD_DIR)/term_unresolved_twice.tsv
+	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep "NONE" | cut -f1,2,3 | sort | uniq > $(BUILD_DIR)/term_unresolved_twice.tsv
 	mv $(BUILD_DIR)/term_resolved_twice.tsv.gz $(BUILD_DIR)/term_resolved.tsv.gz
-	cat $(BUILD_DIR)/term_unresolved_twice.tsv | $(NOMER) append globi-correct | cut -f1,2,4,5 | sort | uniq | gzip > $(BUILD_DIR)/term_unresolved_twice_corrected.tsv.gz
+	cat $(BUILD_DIR)/term_unresolved_twice.tsv | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) globi-correct | cut -f1,2,3,5,6,7 | sort | uniq | gzip > $(BUILD_DIR)/term_unresolved_twice_corrected.tsv.gz
 
 	cat $(BUILD_DIR)/term_unresolved_twice_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_CORRECTED) globi | grep -P "\t(FBC:FB|FBC:SLB)" | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
 	cat $(BUILD_DIR)/term_unresolved_twice_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_CORRECTED) itis | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
@@ -116,10 +118,10 @@ $(TAXON_CACHE).update:
 	cat $(BUILD_DIR)/term_unresolved_twice_corrected.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_CORRECTED) eol | gzip >> $(BUILD_DIR)/term_resolved.tsv.gz
 
 
-	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep -v "NONE" | grep -P "(SAME_AS|SYNONYM_OF|HAS_ACCEPTED_NAME|COMMON_NAME_OF|OCCURS_IN)" | cut -f6,7,9-13,15 | sed 's/$$/\t/g' | gzip > $(BUILD_DIR)/term_match.tsv.gz
-	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep -v "NONE" | grep -P "(SAME_AS|SYNONYM_OF|HAS_ACCEPTED_NAME|COMMON_NAME_OF|OCCURS_IN)" | cut -f1,2,6,7 | gzip > $(BUILD_DIR)/term_link_match.tsv.gz
-	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep "NONE" | cut -f1,2 | sort | uniq > $(BUILD_DIR)/term_unresolved_twice.tsv
-	cat $(BUILD_DIR)/term_link_match.tsv.gz | gunzip | cut -f1,2 | sort | uniq > $(BUILD_DIR)/term_resolved_twice.tsv
+	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep -v "NONE" | grep -P "(SAME_AS|SYNONYM_OF|HAS_ACCEPTED_NAME|COMMON_NAME_OF|OCCURS_IN)" | cut -f8,9,11-15,17 | sed 's/$$/\t/g' | gzip > $(BUILD_DIR)/term_match.tsv.gz
+	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep -v "NONE" | grep -P "(SAME_AS|SYNONYM_OF|HAS_ACCEPTED_NAME|COMMON_NAME_OF|OCCURS_IN)" | cut -f1,2,3,8,9,10 | gzip > $(BUILD_DIR)/term_link_match.tsv.gz
+	cat $(BUILD_DIR)/term_resolved.tsv.gz | gunzip | grep "NONE" | cut -f1,2,3 | sort | uniq > $(BUILD_DIR)/term_unresolved_twice.tsv
+	cat $(BUILD_DIR)/term_link_match.tsv.gz | gunzip | cut -f1,2,3 | sort | uniq > $(BUILD_DIR)/term_resolved_twice.tsv
 
 	cat $(BUILD_DIR)/term_match.tsv.gz > $(TAXON_CACHE).update
 	cat $(BUILD_DIR)/term_link_match.tsv.gz > $(TAXON_MAP).update
