@@ -10,6 +10,7 @@ NOMER_PROPERTIES_NAME:=target/name.properties
 NOMER_PROPERTIES_CORRECTED:=target/corrected.properties
 NOMER_PROPERTIES_ID2NAME:=target/id2name.properties
 NOMER_PROPERTIES_NAME2ID:=target/name2id.properties
+NOMER_PROPERTIES_RESOLVED_ID_ONLY:=target/resolved-id-only.properties
 
 NAMES:=$(BUILD_DIR)/names.tsv.gz
 LINKS:=$(BUILD_DIR)/links.tsv.gz
@@ -51,6 +52,8 @@ $(NOMER_JAR):
 	cat config/corrected.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_CORRECTED)
 	cat config/id2name.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_ID2NAME)
 	cat config/name2id.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_NAME2ID)
+	cat config/resolved-id-only.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_RESOLVED_ID_ONLY)
+	
 
 resolve: update $(NOMER_JAR) $(TAXON_CACHE).update $(TAXON_MAP).update
 
@@ -133,6 +136,16 @@ $(TAXON_CACHE):
 	
 	cat $(TAXON_CACHE).update > $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz
 	cat $(TAXON_MAP).update > $(BUILD_DIR)/taxonMapNoHeader.tsv.gz
+	
+	# integrate with wikidata via taxon identifiers only 
+	cat $(BUILD_DIR)/taxonMapNoHeader.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_RESOLVED_ID_ONLY) wikidata | grep -v "NONE" | gzip > $(BUILD_DIR)/term_resolved_with_wikidata.tsv.gz
+	cat $(BUILD_DIR)/term_resolved_with_wikidata.tsv.gz | gunzip | cut -f1-3,8,9,13 | sort | uniq | gzip > $(BUILD_DIR)/taxonMapNoHeaderWDOnly.tsv.gz
+	cat $(BUILD_DIR)/term_resolved_with_wikidata.tsv.gz | gunzip | cut -f8- | sort | uniq | gzip > $(BUILD_DIR)/taxonCacheNoHeadeWDOnly.tsv.gz
+	cat $(BUILD_DIR)/taxonMapNoHeader.tsv.gz $(BUILD_DIR)/taxonMapNoHeaderWDOnly.tsv.gz > $(BUILD_DIR)/taxonMapNoHeaderWDAppended.tsv.gz
+	cat $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz $(BUILD_DIR)/taxonCacheNoHeaderWDOnly.tsv.gz > $(BUILD_DIR)/taxonCacheNoHeaderWDAppended.tsv.gz
+	
+	cat $(BUILD_DIR)/taxonCacheNoHeaderWDAppended.tsv.gz > $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz
+	cat $(BUILD_DIR)/taxonMapNoHeaderWDAppended.tsv.gz > $(BUILD_DIR)/taxonMapNoHeader.tsv.gz
 	
 	# pre-index globi-taxon-rank index if needed (workaround for https://github.com/globalbioticinteractions/nomer/issues/183)
 	echo -e "\tsoort" | ${NOMER} append globi-taxon-rank
