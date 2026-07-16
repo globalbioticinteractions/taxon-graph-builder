@@ -7,7 +7,9 @@ NOMER_JAR:=$(BUILD_DIR)/nomer.jar
 NOMER:=java -jar $(NOMER_JAR)
 
 NOMER_PROPERTIES_NAME:=target/name.properties
+NOMER_PROPERTIES_PARSE:=target/parse.properties
 NOMER_PROPERTIES_CORRECTED:=target/corrected.properties
+NOMER_PROPERTIES_RETRY:=target/retry.properties
 NOMER_PROPERTIES_ID2NAME:=target/id2name.properties
 NOMER_PROPERTIES_NAME2ID:=target/name2id.properties
 
@@ -51,7 +53,9 @@ update: $(NAMES)
 $(NOMER_JAR):
 	wget -q "https://github.com/globalbioticinteractions/nomer/releases/download/$(NOMER_VERSION)/nomer.jar" -O $(NOMER_JAR)
 	cat config/name.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_NAME)
+	cat config/parse.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_PARSE)
 	cat config/corrected.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_CORRECTED)
+	cat config/retry.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_RETRY)
 	cat config/id2name.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_ID2NAME)
 	cat config/name2id.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_NAME2ID)
 
@@ -63,8 +67,17 @@ $(TAXON_CACHE).update:
 	cat $(BUILD_DIR)/names_distinct.tsv.gz | gunzip | $(NOMER) append --include-header --properties=$(NOMER_PROPERTIES_NAME) $(TAXONOMIES) | gzip > $(BUILD_DIR)/names_appended.tsv.gz
 	cat $(BUILD_DIR)/names_distinct.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) globi | grep -P "\t(FBC:FB|FBC:SLB)" | gzip >> $(BUILD_DIR)/names_appended.tsv.gz
 
-	cat $(BUILD_DIR)/names_appended.tsv.gz | gunzip | grep -v "NONE" | gzip > $(BUILD_DIR)/names_resolved.tsv.gz
-	cat $(BUILD_DIR)/names_appended.tsv.gz | gunzip | grep "NONE" | cut -f1,2,3 | sort | uniq > $(BUILD_DIR)/names_unresolved.tsv
+	cat $(BUILD_DIR)/names_appended.tsv.gz | gunzip | grep -v "NONE" | sort | uniq | gzip > $(BUILD_DIR)/names_resolved.tsv.gz
+
+	diff --changed-group-format='%<' --unchanged-group-format='' <(cat $(BUILD_DIR)/names_appended.tsv.gz | gunzip | grep "NONE" | cut -f1,2,3 | sort | uniq) <(cat $(BUILD_DIR)/names_appended.tsv.gz | gunzip | grep -v "NONE" | cut -f1,2,3 | sort | uniq) | gzip > $(BUILD_DIR)/names_unresolved.tsv.gz
+
+	cat $(BUILD_DIR)/names_unresolved.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_PARSE) gbif-parse | gzip > $(BUILD_DIR)/names_parsed.tsv.gz
+	cat $(BUILD_DIR)/names_unresolved.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_PARSE) globi-correct | $(NOMER) replace --properties=$(NOMER_PROPERTIES_CORRECT) gbif-parse | gzip >> $(BUILD_DIR)/names_parsed.tsv.gz
+
+	cat $(BUILD_DIR)/names_parsed.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_RETRY) $(TAXONOMIES) | gzip > $(BUILD_DIR)/names_parsed_appended.tsv.gz
+	cat $(BUILD_DIR)/names_parsed.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_RETRY) globi | grep -P "\t(FBC:FB|FBC:SLB)" | gzip >> $(BUILD_DIR)/names_parsed_appended.tsv.gz
+
+	$(BUILD_DIR)/names_parsed_appended.tsv.gz | gunzip | cut -f1,2,3,6- | grep -v NONE >> $(BUILD_DIR)/names_resolved.tsv.gz
 
 	cat $(BUILD_DIR)/names_resolved.tsv.gz | gunzip | grep -P "(SAME_AS|SYNONYM_OF|HAS_ACCEPTED_NAME|COMMON_NAME_OF|OCCURS_IN)" | cut -f5,6,8-12,14 | sed 's/$$/\t/g' | gzip > $(BUILD_DIR)/term_match.tsv.gz
 	cat $(BUILD_DIR)/names_resolved.tsv.gz | gunzip | grep -P "(SAME_AS|SYNONYM_OF|HAS_ACCEPTED_NAME|COMMON_NAME_OF|OCCURS_IN)" | cut -f1,2,3,5,6,10 | gzip > $(BUILD_DIR)/term_link_match.tsv.gz
@@ -77,8 +90,8 @@ $(TAXON_CACHE):
 	cat config/taxonCache.header.tsv.gz > $(BUILD_DIR)/term_header.tsv.gz
 	cat config/taxonMap.header.tsv.gz > $(BUILD_DIR)/term_link_header.tsv.gz
 	
-	cat $(TAXON_CACHE).update > $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz
-	cat $(TAXON_MAP).update > $(BUILD_DIR)/taxonMapNoHeader.tsv.gz
+	cat $(TAXON_CACHE).update | gunzip | sort | uniq | gzip > $(BUILD_DIR)/taxonCacheNoHeader.tsv.gz
+	cat $(TAXON_MAP).update | gunzip | sort | uniq | gzip > $(BUILD_DIR)/taxonMapNoHeader.tsv.gz
 	
 	# pre-index globi-taxon-rank index if needed (workaround for https://github.com/globalbioticinteractions/nomer/issues/183)
 	echo -e "\tsoort" | ${NOMER} append globi-taxon-rank
