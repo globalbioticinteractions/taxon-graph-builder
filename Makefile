@@ -65,7 +65,6 @@ $(TAXON_CACHE).update:
 
 	cat $(BUILD_DIR)/names_appended.tsv.gz | gunzip | grep -v "NONE" | gzip > $(BUILD_DIR)/names_resolved.tsv.gz
 	cat $(BUILD_DIR)/names_appended.tsv.gz | gunzip | grep "NONE" | cut -f1,2,3 | sort | uniq > $(BUILD_DIR)/names_unresolved.tsv
-	mv $(BUILD_DIR)/names_resolved.tsv.gz $(BUILD_DIR)/term_resolved.tsv.gz
 
 	cat $(BUILD_DIR)/names_resolved.tsv.gz | gunzip | grep -P "(SAME_AS|SYNONYM_OF|HAS_ACCEPTED_NAME|COMMON_NAME_OF|OCCURS_IN)" | cut -f8,9,11-15,17 | sed 's/$$/\t/g' | gzip > $(BUILD_DIR)/term_match.tsv.gz
 	cat $(BUILD_DIR)/names_resolved.tsv.gz | gunzip | grep -P "(SAME_AS|SYNONYM_OF|HAS_ACCEPTED_NAME|COMMON_NAME_OF|OCCURS_IN)" | cut -f1,2,3,8,9,10 | gzip > $(BUILD_DIR)/term_link_match.tsv.gz
