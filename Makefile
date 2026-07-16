@@ -44,6 +44,7 @@ $(VERBATIM_INTERACTIONS): $(STAMP)
 	wget -q "https://depot.globalbioticinteractions.org/snapshot/target/data/tsv/verbatim-interactions.tsv.gz" -O $(VERBATIM_INTERACTIONS)
 
 $(NAMES): $(VERBATIM_INTERACTIONS)
+	# collect verbatim taxon ids, names and path hierarchies
 	cat $(VERBATIM_INTERACTIONS) | gunzip | mlr --tsvlite cut -f sourceTaxonId,sourceTaxonName,sourceTaxonPathNames | tail -n+2 | sort | uniq | gzip > $(BUILD_DIR)/globi-names.tsv.gz
 	cat $(VERBATIM_INTERACTIONS) | gunzip | mlr --tsvlite cut -f targetTaxonId,targetTaxonName,targetTaxonPathNames | tail -n+2 | sort | uniq | gzip >> $(BUILD_DIR)/globi-names.tsv.gz
 	cat $(BUILD_DIR)/globi-names.tsv.gz | gunzip | sort | uniq | gzip > $(BUILD_DIR)/globi-names-sorted.tsv.gz
@@ -52,6 +53,7 @@ $(NAMES): $(VERBATIM_INTERACTIONS)
 update: $(NAMES)
 
 $(NOMER_JAR):
+	# retrieve nomer binary and configuration
 	wget -q "https://github.com/globalbioticinteractions/nomer/releases/download/$(NOMER_VERSION)/nomer.jar" -O $(NOMER_JAR)
 	cat config/name.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_NAME)
 	cat config/parse.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_PARSE)
@@ -64,8 +66,10 @@ $(NOMER_JAR):
 resolve: update $(NOMER_JAR) $(TAXON_CACHE).update $(TAXON_MAP).update
 
 $(TAXON_CACHE).update:
+	# collect distinct verbatim taxon id, name and path combinations
 	cat $(NAMES) | gunzip | cut -f1,2,3 | sort | uniq | gzip > $(BUILD_DIR)/names_distinct.tsv.gz
 
+	# append name alignments using nomer
 	cat $(BUILD_DIR)/names_distinct.tsv.gz | gunzip | $(NOMER) append --include-header --properties=$(NOMER_PROPERTIES_NAME) $(TAXONOMIES) | gzip > $(BUILD_DIR)/names_appended.tsv.gz
 	cat $(BUILD_DIR)/names_distinct.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) globi | grep -P "\t(FBC:FB|FBC:SLB)" | gzip >> $(BUILD_DIR)/names_appended.tsv.gz
 
@@ -73,12 +77,14 @@ $(TAXON_CACHE).update:
 
 	diff --changed-group-format='%<' --unchanged-group-format='' <(cat $(BUILD_DIR)/names_appended.tsv.gz | gunzip | grep "NONE" | cut -f1,2,3 | sort | uniq) <(cat $(BUILD_DIR)/names_appended.tsv.gz | gunzip | grep -v "NONE" | cut -f1,2,3 | sort | uniq) | gzip > $(BUILD_DIR)/names_unresolved.tsv.gz
 
+	# preprocess names not yet aligned and retry alignment
 	cat $(BUILD_DIR)/names_unresolved.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_PARSE) gbif-parse | gzip > $(BUILD_DIR)/names_parsed.tsv.gz
 	cat $(BUILD_DIR)/names_unresolved.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_PARSE) globi-correct | $(NOMER) replace --properties=$(NOMER_PROPERTIES_CORRECTED) gbif-parse | gzip >> $(BUILD_DIR)/names_parsed.tsv.gz
 
 	cat $(BUILD_DIR)/names_parsed.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_RETRY) $(TAXONOMIES) | gzip > $(BUILD_DIR)/names_parsed_appended.tsv.gz
 	cat $(BUILD_DIR)/names_parsed.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_RETRY) globi | grep -P "\t(FBC:FB|FBC:SLB)" | gzip >> $(BUILD_DIR)/names_parsed_appended.tsv.gz
 
+	# align with wikidata taxon entities for provided and resolved taxonomic identifiers
 	cat $(BUILD_DIR)/names_parsed_appended.tsv.gz | gunzip | grep -v NONE | cut -f1,2,3,6- | gzip >> $(BUILD_DIR)/names_resolved.tsv.gz
 	cat $(BUILD_DIR)/names_resolved.tsv.gz | gunzip | cut -f1-3 | $(NOMER) append --properties=$(NOMER_PROPERTIES_ID_ONLY) wikidata | grep -v NONE | gzip > $(BUILD_DIR)/names_resolved_id_only.tsv.gz
 	cat $(BUILD_DIR)/names_resolved.tsv.gz | gunzip | cut -f5-6,10 | $(NOMER) append --properties=$(NOMER_PROPERTIES_ID_ONLY) wikidata | grep -v NONE | gzip >> $(BUILD_DIR)/names_resolved_id_only.tsv.gz
@@ -90,7 +96,7 @@ $(TAXON_CACHE).update:
 	cat $(BUILD_DIR)/term_link_match.tsv.gz > $(TAXON_MAP).update
 
 $(TAXON_CACHE):
-	# swap working files with final result
+	# swap working files and compile GloBI taxon graph data package
 	cat config/taxonCache.header.tsv.gz > $(BUILD_DIR)/term_header.tsv.gz
 	cat config/taxonMap.header.tsv.gz > $(BUILD_DIR)/term_link_header.tsv.gz
 	
