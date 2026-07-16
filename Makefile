@@ -10,7 +10,8 @@ NOMER_PROPERTIES_NAME:=target/name.properties
 NOMER_PROPERTIES_PARSE:=target/parse.properties
 NOMER_PROPERTIES_CORRECTED:=target/corrected.properties
 NOMER_PROPERTIES_RETRY:=target/retry.properties
-NOMER_PROPERTIES_ID_ONLY:=target/id-only.properties
+NOMER_PROPERTIES_RESOLVED_ID_ONLY:=target/resolved-id-only.properties
+NOMER_PROPERTIES_PROVIDED_ID_ONLY:=target/provided-id-only.properties
 NOMER_PROPERTIES_ID2NAME:=target/id2name.properties
 NOMER_PROPERTIES_NAME2ID:=target/name2id.properties
 
@@ -57,7 +58,8 @@ $(NOMER_JAR):
 	cat config/parse.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_PARSE)
 	cat config/corrected.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_CORRECTED)
 	cat config/retry.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_RETRY)
-	cat config/id-only.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_ID_ONLY)
+	cat config/provided-id-only.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_PROVIDED_ID_ONLY)
+	cat config/resolved-id-only.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_RESOLVED_ID_ONLY)
 	cat config/id2name.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_ID2NAME)
 	cat config/name2id.properties <(${NOMER} properties | grep preston) > $(NOMER_PROPERTIES_NAME2ID)
 
@@ -80,7 +82,8 @@ $(TAXON_CACHE).update:
 	cat $(BUILD_DIR)/names_parsed.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_RETRY) globi | grep -P "\t(FBC:FB|FBC:SLB)" | gzip >> $(BUILD_DIR)/names_parsed_appended.tsv.gz
 
 	cat $(BUILD_DIR)/names_parsed_appended.tsv.gz | gunzip | grep -v NONE | cut -f1,2,3,6- | gzip >> $(BUILD_DIR)/names_resolved.tsv.gz
-	cat $(BUILD_DIR)/names_resolved.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_ID_ONLY) wikidata | grep -v NONE | gzip >> $(BUILD_DIR)/names_resolved_id_only.tsv.gz
+	cat $(BUILD_DIR)/names_resolved.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_PROVIDED_ID_ONLY) wikidata | grep -v NONE | gzip > $(BUILD_DIR)/names_resolved_id_only.tsv.gz
+	cat $(BUILD_DIR)/names_resolved.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_RESOLVED_ID_ONLY) wikidata | grep -v NONE | gzip >> $(BUILD_DIR)/names_resolved_id_only.tsv.gz
 	cat $(BUILD_DIR)/names_resolved_id_only.tsv.gz >> $(BUILD_DIR)/names_resolved.tsv.gz
 	cat $(BUILD_DIR)/names_resolved.tsv.gz | gunzip | grep -P "(SAME_AS|SYNONYM_OF|HAS_ACCEPTED_NAME|COMMON_NAME_OF|OCCURS_IN)" | cut -f5,6,8-12,14 | sed 's/$$/\t/g' | gzip > $(BUILD_DIR)/term_match.tsv.gz
 	cat $(BUILD_DIR)/names_resolved.tsv.gz | gunzip | grep -P "(SAME_AS|SYNONYM_OF|HAS_ACCEPTED_NAME|COMMON_NAME_OF|OCCURS_IN)" | cut -f1,2,3,5,6,10 | gzip > $(BUILD_DIR)/term_link_match.tsv.gz
