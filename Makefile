@@ -74,7 +74,7 @@ $(TAXON_CACHE).update:
 	diff --changed-group-format='%<' --unchanged-group-format='' <(cat $(BUILD_DIR)/names_appended.tsv.gz | gunzip | grep "NONE" | cut -f1,2,3 | sort | uniq) <(cat $(BUILD_DIR)/names_appended.tsv.gz | gunzip | grep -v "NONE" | cut -f1,2,3 | sort | uniq) | gzip > $(BUILD_DIR)/names_unresolved.tsv.gz
 
 	cat $(BUILD_DIR)/names_unresolved.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_PARSE) gbif-parse | gzip > $(BUILD_DIR)/names_parsed.tsv.gz
-	cat $(BUILD_DIR)/names_unresolved.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_PARSE) globi-correct | $(NOMER) replace --properties=$(NOMER_PROPERTIES_CORRECT) gbif-parse | gzip >> $(BUILD_DIR)/names_parsed.tsv.gz
+	cat $(BUILD_DIR)/names_unresolved.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_PARSE) globi-correct | $(NOMER) replace --properties=$(NOMER_PROPERTIES_CORRECTED) gbif-parse | gzip >> $(BUILD_DIR)/names_parsed.tsv.gz
 
 	cat $(BUILD_DIR)/names_parsed.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_RETRY) $(TAXONOMIES) | gzip > $(BUILD_DIR)/names_parsed_appended.tsv.gz
 	cat $(BUILD_DIR)/names_parsed.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_RETRY) globi | grep -P "\t(FBC:FB|FBC:SLB)" | gzip >> $(BUILD_DIR)/names_parsed_appended.tsv.gz
