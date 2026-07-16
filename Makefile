@@ -77,7 +77,7 @@ $(TAXON_CACHE).update:
 	cat $(BUILD_DIR)/names_parsed.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_RETRY) $(TAXONOMIES) | gzip > $(BUILD_DIR)/names_parsed_appended.tsv.gz
 	cat $(BUILD_DIR)/names_parsed.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_RETRY) globi | grep -P "\t(FBC:FB|FBC:SLB)" | gzip >> $(BUILD_DIR)/names_parsed_appended.tsv.gz
 
-	cat $(BUILD_DIR)/names_parsed_appended.tsv.gz | gunzip | cut -f1,2,3,6- | grep -v NONE >> $(BUILD_DIR)/names_resolved.tsv.gz
+	cat $(BUILD_DIR)/names_parsed_appended.tsv.gz | gunzip | cut -f1,2,3,6- | grep -v NONE | gzip >> $(BUILD_DIR)/names_resolved.tsv.gz
 
 	cat $(BUILD_DIR)/names_resolved.tsv.gz | gunzip | grep -P "(SAME_AS|SYNONYM_OF|HAS_ACCEPTED_NAME|COMMON_NAME_OF|OCCURS_IN)" | cut -f5,6,8-12,14 | sed 's/$$/\t/g' | gzip > $(BUILD_DIR)/term_match.tsv.gz
 	cat $(BUILD_DIR)/names_resolved.tsv.gz | gunzip | grep -P "(SAME_AS|SYNONYM_OF|HAS_ACCEPTED_NAME|COMMON_NAME_OF|OCCURS_IN)" | cut -f1,2,3,5,6,10 | gzip > $(BUILD_DIR)/term_link_match.tsv.gz
