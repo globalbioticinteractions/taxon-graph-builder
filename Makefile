@@ -60,14 +60,14 @@ resolve: update $(NOMER_JAR) $(TAXON_CACHE).update $(TAXON_MAP).update
 $(TAXON_CACHE).update:
 	cat $(NAMES) | gunzip | cut -f1,2,3 | sort | uniq | gzip > $(BUILD_DIR)/names_distinct.tsv.gz
 
+	cat $(BUILD_DIR)/names_distinct.tsv.gz | gunzip | $(NOMER) append --include-header --properties=$(NOMER_PROPERTIES_NAME) $(TAXONOMIES) | gzip > $(BUILD_DIR)/names_appended.tsv.gz
 	cat $(BUILD_DIR)/names_distinct.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) globi | grep -P "\t(FBC:FB|FBC:SLB)" | gzip >> $(BUILD_DIR)/names_appended.tsv.gz
-	cat $(BUILD_DIR)/names_distinct.tsv.gz | gunzip | $(NOMER) append --properties=$(NOMER_PROPERTIES_NAME) $(TAXONOMIES) | gzip >> $(BUILD_DIR)/names_appended.tsv.gz
 
 	cat $(BUILD_DIR)/names_appended.tsv.gz | gunzip | grep -v "NONE" | gzip > $(BUILD_DIR)/names_resolved.tsv.gz
 	cat $(BUILD_DIR)/names_appended.tsv.gz | gunzip | grep "NONE" | cut -f1,2,3 | sort | uniq > $(BUILD_DIR)/names_unresolved.tsv
 
-	cat $(BUILD_DIR)/names_resolved.tsv.gz | gunzip | grep -P "(SAME_AS|SYNONYM_OF|HAS_ACCEPTED_NAME|COMMON_NAME_OF|OCCURS_IN)" | cut -f8,9,11-15,17 | sed 's/$$/\t/g' | gzip > $(BUILD_DIR)/term_match.tsv.gz
-	cat $(BUILD_DIR)/names_resolved.tsv.gz | gunzip | grep -P "(SAME_AS|SYNONYM_OF|HAS_ACCEPTED_NAME|COMMON_NAME_OF|OCCURS_IN)" | cut -f1,2,3,8,9,10 | gzip > $(BUILD_DIR)/term_link_match.tsv.gz
+	cat $(BUILD_DIR)/names_resolved.tsv.gz | gunzip | grep -P "(SAME_AS|SYNONYM_OF|HAS_ACCEPTED_NAME|COMMON_NAME_OF|OCCURS_IN)" | cut -f5,6,8-12,14 | sed 's/$/\t/g' | gzip > $(BUILD_DIR)/term_match.tsv.gz
+	cat $(BUILD_DIR)/names_resolved.tsv.gz | gunzip | grep -P "(SAME_AS|SYNONYM_OF|HAS_ACCEPTED_NAME|COMMON_NAME_OF|OCCURS_IN)" | cut -f1,2,3,5,6,10 | gzip > $(BUILD_DIR)/term_link_match.tsv.gz
 
 	cat $(BUILD_DIR)/term_match.tsv.gz > $(TAXON_CACHE).update
 	cat $(BUILD_DIR)/term_link_match.tsv.gz > $(TAXON_MAP).update
