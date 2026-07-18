@@ -70,18 +70,22 @@ Column Descriptions
 
     1 | providedTaxonId
     2 | providedTaxonName
-    3 | resolvedTaxonId
-    4 | resolvedTaxonName
+    3 | providedTaxonPath
+    4 | resolvedTaxonId
+    5 | resolvedTaxonName
+    5 | resolvedTaxonPath
 
   names.tsv.gz
 
     1 | providedTaxonId
     2 | providedTaxonName
+    3 | providedTaxonPath
 
    namesUnresolved.tsv.gz
 
     1 | providedTaxonId
     2 | providedTaxonName
+    3 | providedTaxonPath
 
 References
 
@@ -344,3 +348,7 @@ org.globalbioticinteractions.taxon v0.6.0, 2025-12-22
 org.globalbioticinteractions.taxon v0.6.1, 2026-04-28
 
 1. update taxonCache and taxonMap using automated scripts available via Taxon Graph Builder v0.1.5 https://github.com/globalbioticinteractions/taxon-graph-builder/releases/tag/0.1.5 and/or https://doi.org/10.5281/zenodo.19862853.
+
+org.globalbioticinteractions.taxon v0.6.6, 2026-07-18
+
+1. update taxonCache and taxonMap using automated scripts available via Taxon Graph Builder v0.2.0 https://github.com/globalbioticinteractions/taxon-graph-builder/releases/tag/0.2.0 
